@@ -5,3 +5,5 @@
 `pip install -r requirements.txt`
 
 ## Run
+
+`python -m blackout_poetry.main`
