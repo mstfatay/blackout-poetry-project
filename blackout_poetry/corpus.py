@@ -18,11 +18,11 @@ class BaseCorpus:
 class BlackoutPoetryCorpus(BaseCorpus):
     def __init__(self, text: str):
         self.text = text
-        self.words = text.split()
+        self.words = list(map(lambda x: x.lower(), text.split()))
 
     def find(self, word: str) -> int:
-        if word in self.words:
-            return self.words.index(word)
+        if word.lower() in self.words:
+            return self.words.index(word.lower())
         else:
             return -1
 
