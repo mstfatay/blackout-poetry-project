@@ -1,0 +1,7 @@
+transformers
+numpy
+openai
+tqdm
+torch
+torchaudio
+torchvision
