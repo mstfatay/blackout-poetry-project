@@ -6,4 +6,4 @@
 
 ## Run
 
-`python -m blackout_poetry.main`
+`python -m blackout_poetry.run_tests`

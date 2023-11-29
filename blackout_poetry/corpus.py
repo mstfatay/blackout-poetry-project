@@ -16,17 +16,21 @@ class BaseCorpus:
     
 
 class BlackoutPoetryCorpus(BaseCorpus):
+    punctions = '.,?!`"\':;{}[]()“‘’'
+
     def __init__(self, text: str):
         self.text = text
         self.words = list(map(lambda x: x.lower(), text.split()))
 
     def find(self, word: str) -> int:
+        word = self._clean_word(word)
         if word.lower() in self.words:
             return self.words.index(word.lower())
         else:
             return -1
 
     def retrieve(self, word: str) -> str:
+        word = self._clean_word(word)
         index = self.find(word)
         if index >= 0:
             selected_word = self.words[index]
@@ -41,3 +45,8 @@ class BlackoutPoetryCorpus(BaseCorpus):
             if selected_word:
                 return selected_word
         return None
+    
+    def _clean_word(self, word: str) -> str:
+        if word in self.punctions:
+            return word
+        return word.strip().strip('.,?!`"\':;{}[]()“‘’')
