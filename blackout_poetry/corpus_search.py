@@ -7,10 +7,12 @@ from json import dump
 class CorpusSearch:
     output_window: int = 1
     model_name: str = "luodian/llama-7b-hf"
-    best_tokens_count: int = 1000
-    treshold_prob: float = 0.001
+    best_tokens_count: int = 32000
+    treshold_prob: float = 0.0001
 
-    def __init__(self, corpus: BaseCorpus):
+    def __init__(self, corpus: BaseCorpus, model_name: str = None):
+        if model_name:
+            self.model_name = model_name
         self.model = LlamaForCausalLM.from_pretrained(
             self.model_name, return_dict_in_generate=True
         )
@@ -82,11 +84,8 @@ class CorpusSearch:
         for i in range(len(generation_output["scores"])):
             logits: torch.tensor = generation_output["scores"][i][0]
             # sorted_logits, sorted_inds = logits.sort(descending=True)
-
             probs = torch.nn.Softmax(dim=0)(logits)
             sorted_probs, sorted_inds = probs.sort(descending=True)
-
-            # breakpoint()
 
             # transpose it
             selected_token_ids = sorted_inds[0 : self.best_tokens_count].unsqueeze(1)
@@ -123,7 +122,7 @@ class CorpusSearch:
         }
 
         if next_word is not None:
-            self.prompt = self.prompt.strip() + " " + next_word
+            self.prompt = self.prompt.strip(" ") + " " + next_word
             self.generated_words.append(next_word)
 
         return result
