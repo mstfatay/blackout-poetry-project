@@ -61,23 +61,20 @@ tests3 = [
 ]
 
 if __name__ == "__main__":
-    test_name = "wikipedia1"
-
     dataset = get_wikipedia_dataset()
 
-    for test in tests3:
+    corpus_search = CorpusSearch(
+        None,
+    )
+
+    for test in tests1:
         test_name = test["name"]
         prompt = test["prompt"]
-        model_name = test["model_name"]
         # create directory
         os.makedirs(f"evals/{test_name}/outputs", exist_ok=True)
         with open(f"evals/{test_name}/data.json", "w", encoding="utf-8") as f:
             dump(list(dataset), f, indent=2)
 
-        corpus_search = CorpusSearch(
-            None,
-            model_name=model_name,
-        )
         results = []
 
         for data_point in dataset:
