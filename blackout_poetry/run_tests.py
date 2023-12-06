@@ -46,12 +46,12 @@ tests2 = [
 ]
 
 tests3 = [
-    {
-        "name": "wikipedia_llama_13b",
-        "treshold_prob": 0.001,
-        "prompt": "Here is a poem: \n\n",
-        "model_name": "luodian/llama-13b-hf",
-    },
+    #{
+    #    "name": "wikipedia_llama_13b",
+    #    "treshold_prob": 0.001,
+    #    "prompt": "Here is a poem: \n\n",
+    #    "model_name": "luodian/llama-13b-hf",
+    #},
     {
         "name": "wikipedia_llama_7b",
         "treshold_prob": 0.001,
@@ -67,7 +67,7 @@ if __name__ == "__main__":
         None,
     )
 
-    for test in tests1:
+    for test in tests3:
         test_name = test["name"]
         prompt = test["prompt"]
         # create directory
