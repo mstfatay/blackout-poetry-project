@@ -14,6 +14,7 @@ class BlackoutPoetryTokenCorpus(BaseCorpus):
         self.text = text
 
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+        self.tokenizer.add_special_tokens({"pad_token": "[PAD]"})
 
         tmp_text = text.lower()
         for punction in self.punctions:
@@ -22,13 +23,15 @@ class BlackoutPoetryTokenCorpus(BaseCorpus):
 
         self.words = [word for word in cleaned_text.split() if word]
 
-        # Good thing is the order of words is preserved
-        self.word_combinations = []
+        # We preserve the order of words
+        self.word_combinations: list[list[str]] = []
         for word in self.words:
-            self.word_combinations.extend(self._get_combinations_of_word(word))
+            self.word_combinations.append(self._get_combinations_of_word(word))
 
-        # The order of tokens is preserved
-        self.tokens = self._tokenize_words(self.word_combinations)
+        self.tokens_of_combinations: list[list[list[int]]] = []
+        for word_comb in self.word_combinations:
+            curr_tokens = self._tokenize_words(word_comb)
+            self.tokens_of_combinations.append(curr_tokens)
 
     def _get_combinations_of_word(self, word: str) -> list[str]:
         # There are currently a total of 88 combinations of each word
@@ -47,6 +50,8 @@ class BlackoutPoetryTokenCorpus(BaseCorpus):
                 with_punction = f"{punction}{comb}"
                 combs_with_punc.append(with_punction)
 
+        return combs_with_punc
+
         all_combs = [*combs_with_punc]
         for word in combs_with_punc:
             all_combs.append(f" {word}")
@@ -54,7 +59,24 @@ class BlackoutPoetryTokenCorpus(BaseCorpus):
         return all_combs
 
     def _tokenize_words(self, words: list[str]) -> list[int]:
-        return self.tokenizer(words, return_tensors="pt", add_special_tokens=False)
+        # token_strings = self.tokenizer.convert_ids_to_tokens(token_ids)
+        # space == '▁'
+        tokenization_result = self.tokenizer(
+            words, return_tensors="pt", add_special_tokens=False, padding=True
+        )
+        input_ids = tokenization_result["input_ids"].tolist()
+        attention_mask = tokenization_result["attention_mask"].tolist()
+
+        result: list[list[int]] = []
+        for i in range(len(input_ids)):
+            curr_input_ids = input_ids[i]
+            curr_attention_mask = attention_mask[i]
+            curr_result = []
+            for j in range(len(curr_input_ids)):
+                if curr_attention_mask[j] == 1:
+                    curr_result.append(curr_input_ids[j])
+            result.append(curr_result)
+        return result
 
     def find(self, token: int) -> int:
         if token in self.tokens:
