@@ -62,10 +62,16 @@ class TokenCorpusSearch:
         while True:
             stack = self._corpus_search_one_iteration(input_ids, stack)
 
-            stack_token_ids = self._get_stack_token_ids(stack)
-            new_ids = torch.concat([input_ids, stack_token_ids], dim=0)
-            curr_text = self.tokenizer.decode(new_ids.tolist())
-            print(curr_text)
+            # stack_token_ids = self._get_stack_token_ids(stack)
+            # new_ids = torch.concat([input_ids, stack_token_ids], dim=0)
+            # curr_text = self.tokenizer.decode(new_ids.tolist())
+
+    def get_stack_text(self, stack) -> str:
+        if len(stack) == 0:
+            return "[empty stack]"
+        stack_token_ids = self._get_stack_token_ids(stack)
+        curr_text = self.tokenizer.decode(stack_token_ids.tolist())
+        return curr_text
 
     def _get_stack_token_ids(self, stack):
         token_ids = []
@@ -82,19 +88,23 @@ class TokenCorpusSearch:
 
     def is_viable_node(self, stack_obj, stack):
         token_ind = stack_obj["token_ind"]
-        if token_ind == -1:
+        corpus_ind = stack_obj["corpus_ind"]
+        if token_ind == -1 or corpus_ind == -1:
             return False
         if stack_obj["best_next_tokens_probs"][token_ind] < self.treshold_prob:
             return False
 
         if len(stack) != 0 and stack_obj["is_new_word_list"][token_ind]:
             word_seq = self._create_one_token_seq(stack)
-            precious_word_corpus_ind = stack[-1][-1]["corpus_ind"]
-            # Then previous word should be complete
+            previous_word_corpus_ind = stack[-1][-1]["corpus_ind"]
 
-            find_exact_ind = self.corpus.find_exact(word_seq, precious_word_corpus_ind)
+            if stack_obj["corpus_ind"] == previous_word_corpus_ind:
+                return False
 
-            if find_exact_ind != precious_word_corpus_ind:
+            # Previous word should be complete
+            find_exact_ind = self.corpus.find_exact(word_seq, previous_word_corpus_ind)
+
+            if find_exact_ind != previous_word_corpus_ind:
                 return False
 
         return True
@@ -123,13 +133,17 @@ class TokenCorpusSearch:
         return stack
 
     def _corpus_search_add_new_node(self, stack, stack_obj):
-        corpus_ind = self._get_last_corpus_ind_from_stack(stack) + 1
+        print(self.get_stack_text(stack))
+
+        corpus_ind = self._get_last_corpus_ind_from_stack(stack)
 
         is_new_word_list = self.create_is_new_word_list(stack_obj, stack)
         stack_obj["is_new_word_list"] = is_new_word_list
 
+        from_ind = stack_obj.get("token_ind", -1) + 1
+        token_seqs = self._create_token_seqs(stack, stack_obj)
         token_ind, new_corpus_ind = self.corpus.find_first_in_list(
-            self._create_token_seqs(stack, stack_obj), corpus_ind
+            token_seqs, corpus_ind, from_ind
         )
 
         stack_obj["token_ind"] = token_ind
@@ -177,9 +191,8 @@ class TokenCorpusSearch:
             )
         return last_word_token_seq
 
-    def _create_token_seqs(self, stack, stack_obj, from_ind=0) -> list[list[int]]:
+    def _create_token_seqs(self, stack, stack_obj) -> list[list[int]]:
         best_next_tokens = stack_obj["best_next_tokens"]
-        from_ind = stack_obj.get("token_ind", -1) + 1
 
         terminal_tokens_list = best_next_tokens.tolist()
 
@@ -195,7 +208,7 @@ class TokenCorpusSearch:
             )
 
         token_seqs = []
-        for i in range(from_ind, len(terminal_tokens_list)):
+        for i in range(len(terminal_tokens_list)):
             curr_best_next_token = terminal_tokens_list[i]
             if stack_obj["is_new_word_list"][i]:
                 token_seqs.append([curr_best_next_token])

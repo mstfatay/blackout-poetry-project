@@ -110,12 +110,12 @@ class BlackoutPoetryTokenCorpus(BaseCorpus):
             return -1
 
     def find_first_in_list(
-        self, token_seqs: list[list[int]], corpus_index: int
+        self, token_seqs: list[list[int]], corpus_index: int, start_from: int
     ) -> tuple[int, int]:
         """
         return found [token_ind, corpus_ind]
         """
-        for i in range(len(token_seqs)):
+        for i in range(start_from, len(token_seqs)):
             token_seq = token_seqs[i]
             ind = self.find(token_seq, corpus_index)
             if ind >= 0:
