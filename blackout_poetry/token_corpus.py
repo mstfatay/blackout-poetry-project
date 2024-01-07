@@ -1,13 +1,19 @@
 from .base_corpus import BaseCorpus
+from transformers import AutoTokenizer
 
 
 class BlackoutPoetryTokenCorpus(BaseCorpus):
     punctions = ".,?!`\"':;{}[]()“‘’"
     end_punctions = ".,?!`\"':;}])’"
     start_punctions = "`\"'{[(“‘"
+    model_name: str = "luodian/llama-7b-hf"
 
-    def __init__(self, text: str):
+    def __init__(self, text: str, model_name: str = None):
+        if model_name:
+            self.model_name = model_name
         self.text = text
+
+        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
 
         tmp_text = text.lower()
         for punction in self.punctions:
@@ -48,7 +54,7 @@ class BlackoutPoetryTokenCorpus(BaseCorpus):
         return all_combs
 
     def _tokenize_words(self, words: list[str]) -> list[int]:
-        return []
+        return self.tokenizer(words, return_tensors="pt", add_special_tokens=False)
 
     def find(self, token: int) -> int:
         if token in self.tokens:
