@@ -50,7 +50,6 @@ class TokenCorpusSearch:
         prompt: str,
         max_iterations: int = 50,
         verbose: bool = True,
-        output_file_path: str = None,
     ):
         inputs = self.tokenizer(prompt, return_tensors="pt")
         return self.corpus_search_with_tokens(
@@ -71,16 +70,9 @@ class TokenCorpusSearch:
                 print(f"iteration {i}:")
                 print(stack_text)
 
-            # stack_token_ids = self._get_stack_token_ids(stack)
-            # new_ids = torch.concat([input_ids, stack_token_ids], dim=0)
-            # curr_text = self.tokenizer.decode(new_ids.tolist())
-
-        if verbose:
-            print(texts_trace)
-
         generations = []
-        for text in self.texts_trace:
-            for i in range(len(text), 0, -1):
+        for text in texts_trace:
+            for i in range(len(text) - 1, -1, -1):
                 if text[i] in [".", "?", "!"]:
                     generation = text[: i + 1].strip()
                     generations.append(generation)
@@ -243,3 +235,16 @@ class TokenCorpusSearch:
             else:
                 token_seqs.append(last_word_token_seq + [curr_best_next_token])
         return token_seqs
+
+    def set_corpus(self, corpus: BaseCorpus):
+        self.corpus = corpus
+
+    def change_model(self, model_name: str):
+        del self.model
+        del self.tokenizer
+
+        self.model_name = model_name
+        self.model = LlamaForCausalLM.from_pretrained(
+            self.model_name, return_dict_in_generate=True
+        )
+        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
