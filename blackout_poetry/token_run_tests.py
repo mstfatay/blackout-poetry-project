@@ -7,6 +7,11 @@ import os
 tests1 = [
     {
         "name": "wikipedia_treshold_001",
+        "treshold_prob": 0.003,
+        "prompt": "Here is a poem:",
+    },
+    {
+        "name": "wikipedia_treshold_001",
         "treshold_prob": 0.001,
         "prompt": "Here is a poem:",
     },
@@ -66,7 +71,7 @@ if __name__ == "__main__":
         test_name = test["name"]
         prompt = test["prompt"]
         # create directory
-        # os.makedirs(f"evals_token/{test_name}/outputs", exist_ok=True)
+        os.makedirs(f"evals_token/{test_name}", exist_ok=True)
         with open(f"evals_token/{test_name}/data.json", "w", encoding="utf-8") as f:
             dump(list(dataset), f, indent=2)
 
@@ -77,7 +82,7 @@ if __name__ == "__main__":
 
         results = []
 
-        for data_point in dataset:
+        for i, data_point in enumerate(dataset):
             corpus_text = data_point["text"]
             corpus_text = " ".join(corpus_text.split())
             title = data_point["title"]
