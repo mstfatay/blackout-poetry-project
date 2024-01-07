@@ -33,6 +33,14 @@ class BlackoutPoetryTokenCorpus(BaseCorpus):
             curr_tokens = self._tokenize_words(word_comb)
             self.tokens_of_combinations.append(curr_tokens)
 
+        # self.tokens: list[int] = []
+        # for i in range(len(self.tokens_of_combinations)):
+        #    combs = self.tokens_of_combinations[i]
+        #    for j in range(len(combs)):
+        #        tokens = combs[j]
+        #        if len(tokens) == 7:
+        #            breakpoint()
+
     def _get_combinations_of_word(self, word: str) -> list[str]:
         # There are currently a total of 88 combinations of each word
         word_itself = word
@@ -50,8 +58,6 @@ class BlackoutPoetryTokenCorpus(BaseCorpus):
                 with_punction = f"{punction}{comb}"
                 combs_with_punc.append(with_punction)
 
-        return combs_with_punc
-
         all_combs = [*combs_with_punc]
         for word in combs_with_punc:
             all_combs.append(f" {word}")
@@ -61,6 +67,8 @@ class BlackoutPoetryTokenCorpus(BaseCorpus):
     def _tokenize_words(self, words: list[str]) -> list[int]:
         # token_strings = self.tokenizer.convert_ids_to_tokens(token_ids)
         # space == '▁'
+        # if token_strings[0] == '▁':
+        #    # then, a new word has started
         tokenization_result = self.tokenizer(
             words, return_tensors="pt", add_special_tokens=False, padding=True
         )
@@ -78,9 +86,17 @@ class BlackoutPoetryTokenCorpus(BaseCorpus):
             result.append(curr_result)
         return result
 
-    def find(self, token: int) -> int:
-        if token in self.tokens:
-            return self.tokens.index(token)
+    def find(self, token_seq: list[int], corpus_index: int) -> int:
+        for i in range(corpus_index, len(self.tokens_of_combinations)):
+            combination = self.tokens_of_combinations[i]
+            for tokens in combination:
+                found = True
+                for token in token_seq:
+                    if token not in tokens:
+                        found = False
+                        break
+                if found:
+                    return i
         else:
             return -1
 
@@ -93,12 +109,18 @@ class BlackoutPoetryTokenCorpus(BaseCorpus):
         else:
             return None
 
-    def retrieve_first_from_list(self, tokens: list[int]) -> int:
-        for token in tokens:
-            selected_token = self.retrieve(token)
-            if selected_token:
-                return selected_token
-        return None
+    def find_first_in_list(
+        self, token_seqs: list[list[int]], corpus_index: int
+    ) -> tuple[int, int]:
+        """
+        return found [token_ind, corpus_ind]
+        """
+        for i in range(len(token_seqs)):
+            token_seq = token_seqs[i]
+            ind = self.find(token_seq, corpus_index)
+            if ind >= 0:
+                return (i, ind)
+        return (-1, -1)
 
 
 if __name__ == "__main__":
