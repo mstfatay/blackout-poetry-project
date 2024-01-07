@@ -10,6 +10,7 @@ class TokenCorpusSearch:
     model_name: str = "luodian/llama-7b-hf"
     best_tokens_count: int = 32000
     treshold_prob: float = 0.0001
+    max_output_length: int = 10
 
     def __init__(self, corpus: BlackoutPoetryTokenCorpus, model_name: str = None):
         if model_name:
@@ -19,8 +20,6 @@ class TokenCorpusSearch:
         )
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
         self.corpus = corpus
-
-        self.generated_words: list[str] = []
 
     def _generate_next_best_tokens(self, input_token_ids: torch.tensor) -> list[int]:
         unsequezed_input_token_ids = input_token_ids.unsqueeze(0)
@@ -49,22 +48,49 @@ class TokenCorpusSearch:
     def corpus_search(
         self,
         prompt: str,
-        word_count: int,
+        max_iterations: int = 50,
         verbose: bool = True,
         output_file_path: str = None,
     ):
         inputs = self.tokenizer(prompt, return_tensors="pt")
-        return self.corpus_search_with_tokens(inputs.input_ids[0])
+        return self.corpus_search_with_tokens(
+            inputs.input_ids[0], max_iterations, verbose
+        )
 
-    def corpus_search_with_tokens(self, input_ids: torch.tensor):
+    def corpus_search_with_tokens(
+        self, input_ids: torch.tensor, max_iterations, verbose
+    ):
         stack = []
-
-        while True:
+        texts_trace = []
+        for i in range(max_iterations):
             stack = self._corpus_search_one_iteration(input_ids, stack)
+            stack_text = self.get_stack_text(stack)
+            texts_trace.append(stack_text)
+
+            if verbose:
+                print(f"iteration {i}:")
+                print(stack_text)
 
             # stack_token_ids = self._get_stack_token_ids(stack)
             # new_ids = torch.concat([input_ids, stack_token_ids], dim=0)
             # curr_text = self.tokenizer.decode(new_ids.tolist())
+
+        if verbose:
+            print(texts_trace)
+
+        generations = []
+        for text in self.texts_trace:
+            for i in range(len(text), 0, -1):
+                if text[i] in [".", "?", "!"]:
+                    generation = text[: i + 1].strip()
+                    generations.append(generation)
+                    break
+
+        # remove duplicates
+        generations = list(set(generations))
+        if verbose:
+            print(generations)
+        return generations
 
     def get_stack_text(self, stack) -> str:
         if len(stack) == 0:
@@ -89,6 +115,10 @@ class TokenCorpusSearch:
     def is_viable_node(self, stack_obj, stack):
         token_ind = stack_obj["token_ind"]
         corpus_ind = stack_obj["corpus_ind"]
+
+        if len(stack) >= self.max_output_length:
+            return False
+
         if token_ind == -1 or corpus_ind == -1:
             return False
         if stack_obj["best_next_tokens_probs"][token_ind] < self.treshold_prob:
@@ -133,8 +163,6 @@ class TokenCorpusSearch:
         return stack
 
     def _corpus_search_add_new_node(self, stack, stack_obj):
-        print(self.get_stack_text(stack))
-
         corpus_ind = self._get_last_corpus_ind_from_stack(stack)
 
         is_new_word_list = self.create_is_new_word_list(stack_obj, stack)
