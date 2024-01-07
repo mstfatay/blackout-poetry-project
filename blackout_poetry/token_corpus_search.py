@@ -86,20 +86,29 @@ class TokenCorpusSearch:
             return False
         if stack_obj["best_next_tokens_probs"][token_ind] < self.treshold_prob:
             return False
+
+        if len(stack) != 0 and stack_obj["is_new_word_list"][token_ind]:
+            word_seq = self._create_one_token_seq(stack)
+            precious_word_corpus_ind = stack[-1][-1]["corpus_ind"]
+            # Then previous word should be complete
+
+            find_exact_ind = self.corpus.find_exact(word_seq, precious_word_corpus_ind)
+
+            if find_exact_ind != precious_word_corpus_ind:
+                return False
+
         return True
 
-    def is_new_word_started(self, stack_obj, stack):
+    def create_is_new_word_list(self, stack_obj, stack) -> list[bool]:
         if len(stack) == 0:
-            return True
-        token_ind = stack_obj["token_ind"]
-        token = stack_obj["best_next_tokens"][token_ind]
+            return [True] * len(stack_obj["best_next_tokens"])
 
-        token_string = self.tokenizer.convert_ids_to_tokens([token])[0]
+        tokens = stack_obj["best_next_tokens"]
+
+        token_strings = self.tokenizer.convert_ids_to_tokens(tokens.tolist())
+
         space = "▁"
-
-        if token_string[0] == space:
-            return True
-        return False
+        return [token_string[0] == space for token_string in token_strings]
 
     def _back_track(self, stack):
         if len(stack) == 0:
@@ -114,8 +123,10 @@ class TokenCorpusSearch:
         return stack
 
     def _corpus_search_add_new_node(self, stack, stack_obj):
-        best_next_tokens = stack_obj["best_next_tokens"]
         corpus_ind = self._get_last_corpus_ind_from_stack(stack) + 1
+
+        is_new_word_list = self.create_is_new_word_list(stack_obj, stack)
+        stack_obj["is_new_word_list"] = is_new_word_list
 
         token_ind, new_corpus_ind = self.corpus.find_first_in_list(
             self._create_token_seqs(stack, stack_obj), corpus_ind
@@ -127,9 +138,9 @@ class TokenCorpusSearch:
         is_viable_new_node = self.is_viable_node(stack_obj, stack)
 
         if is_viable_new_node:
-            is_new_word_started = self.is_new_word_started(stack_obj, stack)
+            is_curr_new_word = is_new_word_list[token_ind]
 
-            if is_new_word_started:
+            if is_curr_new_word:
                 stack.append([stack_obj])
             else:
                 stack[-1].append(stack_obj)
@@ -153,14 +164,41 @@ class TokenCorpusSearch:
         stack = self._corpus_search_add_new_node(stack, stack_obj)
         return stack
 
-    # TODO
+    def _create_one_token_seq(self, stack) -> list[int]:
+        if len(stack) == 0:
+            return []
+
+        last_word_objs = stack[-1]
+        last_word_token_seq = []
+        for last_word_obj in last_word_objs:
+            token_ind = last_word_obj["token_ind"]
+            last_word_token_seq.append(
+                int(last_word_obj["best_next_tokens"][token_ind])
+            )
+        return last_word_token_seq
+
     def _create_token_seqs(self, stack, stack_obj, from_ind=0) -> list[list[int]]:
         best_next_tokens = stack_obj["best_next_tokens"]
         from_ind = stack_obj.get("token_ind", -1) + 1
 
         terminal_tokens_list = best_next_tokens.tolist()
 
+        if len(stack) == 0:
+            return [[token] for token in terminal_tokens_list]
+
+        last_word_objs = stack[-1]
+        last_word_token_seq = []
+        for last_word_obj in last_word_objs:
+            token_ind = last_word_obj["token_ind"]
+            last_word_token_seq.append(
+                int(last_word_obj["best_next_tokens"][token_ind])
+            )
+
         token_seqs = []
-        for terminal_token in terminal_tokens_list[from_ind:]:
-            token_seqs.append([terminal_token])
+        for i in range(from_ind, len(terminal_tokens_list)):
+            curr_best_next_token = terminal_tokens_list[i]
+            if stack_obj["is_new_word_list"][i]:
+                token_seqs.append([curr_best_next_token])
+            else:
+                token_seqs.append(last_word_token_seq + [curr_best_next_token])
         return token_seqs

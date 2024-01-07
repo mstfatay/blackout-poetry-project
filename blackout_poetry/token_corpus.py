@@ -100,14 +100,14 @@ class BlackoutPoetryTokenCorpus(BaseCorpus):
         else:
             return -1
 
-    def retrieve(self, token: int) -> int:
-        index = self.find(token)
-        if index >= 0:
-            selected_token = self.tokens[index]
-            self.tokens = self.tokens[index + 1 :]
-            return selected_token
+    def find_exact(self, token_seq: list[int], corpus_index: int) -> int:
+        for i in range(corpus_index, len(self.tokens_of_combinations)):
+            combination = self.tokens_of_combinations[i]
+            for tokens in combination:
+                if tokens == token_seq:
+                    return i
         else:
-            return None
+            return -1
 
     def find_first_in_list(
         self, token_seqs: list[list[int]], corpus_index: int
