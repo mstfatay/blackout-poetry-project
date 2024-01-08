@@ -20,6 +20,7 @@ class TokenCorpusSearch:
         )
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
         self.corpus = corpus
+        self.terminated = False
 
     def _generate_next_best_tokens(self, input_token_ids: torch.tensor) -> list[int]:
         unsequezed_input_token_ids = input_token_ids.unsqueeze(0)
@@ -61,8 +62,13 @@ class TokenCorpusSearch:
     ):
         stack = []
         texts_trace = []
+        self.terminated = False
         for i in range(max_iterations):
             stack = self._corpus_search_one_iteration(input_ids, stack)
+            if self.terminated:
+                if verbose:
+                    print("Terminated because no more viable tokens")
+                break
             stack_text = self.get_stack_text(stack)
             texts_trace.append(stack_text)
 
@@ -86,7 +92,7 @@ class TokenCorpusSearch:
 
     def get_stack_text(self, stack) -> str:
         if len(stack) == 0:
-            return "[empty stack]"
+            return ""
         stack_token_ids = self._get_stack_token_ids(stack)
         curr_text = self.tokenizer.decode(stack_token_ids.tolist())
         return curr_text
@@ -144,7 +150,8 @@ class TokenCorpusSearch:
 
     def _back_track(self, stack):
         if len(stack) == 0:
-            raise Exception("Cannot backtrack from empty stack")
+            self.terminated = True
+            return []
         back_tracked_node = stack[-1].pop()
 
         # remove empty lists from the end of the stack

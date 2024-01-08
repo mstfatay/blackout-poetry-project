@@ -6,25 +6,30 @@ import os
 
 tests1 = [
     {
-        "name": "wikipedia_treshold_001",
+        "name": "wikipedia_treshold_01",
+        "treshold_prob": 0.01,
+        "prompt": "Here is a poem:",
+    },
+    {
+        "name": "wikipedia_treshold_003",
         "treshold_prob": 0.003,
         "prompt": "Here is a poem:",
     },
-    {
-        "name": "wikipedia_treshold_001",
-        "treshold_prob": 0.001,
-        "prompt": "Here is a poem:",
-    },
-    {
-        "name": "wikipedia_treshold_0003",
-        "treshold_prob": 0.0003,
-        "prompt": "Here is a poem:",
-    },
-    {
-        "name": "wikipedia_treshold_0001",
-        "treshold_prob": 0.0001,
-        "prompt": "Here is a poem:",
-    },
+    # {
+    #    "name": "wikipedia_treshold_001",
+    #    "treshold_prob": 0.001,
+    #    "prompt": "Here is a poem:",
+    # },
+    # {
+    #    "name": "wikipedia_treshold_0003",
+    #    "treshold_prob": 0.0003,
+    #    "prompt": "Here is a poem:",
+    # },
+    # {
+    #    "name": "wikipedia_treshold_0001",
+    #    "treshold_prob": 0.0001,
+    #    "prompt": "Here is a poem:",
+    # },
 ]
 
 tests2 = [
@@ -83,6 +88,8 @@ if __name__ == "__main__":
         results = []
 
         for i, data_point in enumerate(dataset):
+            print("---------------------------------------")
+            print(f"Running {i+1}/{len(dataset)}")
             corpus_text = data_point["text"]
             corpus_text = " ".join(corpus_text.split())
             title = data_point["title"]
