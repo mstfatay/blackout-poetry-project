@@ -15,21 +15,21 @@ tests1 = [
         "treshold_prob": 0.003,
         "prompt": "Here is a poem:",
     },
-    # {
-    #    "name": "wikipedia_treshold_001",
-    #    "treshold_prob": 0.001,
-    #    "prompt": "Here is a poem:",
-    # },
-    # {
-    #    "name": "wikipedia_treshold_0003",
-    #    "treshold_prob": 0.0003,
-    #    "prompt": "Here is a poem:",
-    # },
-    # {
-    #    "name": "wikipedia_treshold_0001",
-    #    "treshold_prob": 0.0001,
-    #    "prompt": "Here is a poem:",
-    # },
+    {
+        "name": "wikipedia_treshold_001",
+        "treshold_prob": 0.001,
+        "prompt": "Here is a poem:",
+    },
+    {
+        "name": "wikipedia_treshold_0003",
+        "treshold_prob": 0.0003,
+        "prompt": "Here is a poem:",
+    },
+    {
+        "name": "wikipedia_treshold_0001",
+        "treshold_prob": 0.0001,
+        "prompt": "Here is a poem:",
+    },
 ]
 
 tests2 = [
@@ -46,22 +46,22 @@ tests2 = [
     {
         "name": "wikipedia_prompt_3",
         "treshold_prob": 0.001,
-        "prompt": "Here is a sentence: \n\n",
+        "prompt": "Here is a sentence:",
     },
 ]
 
 tests3 = [
     {
-        "name": "wikipedia_llama_13b",
-        "treshold_prob": 0.001,
-        "prompt": "Here is a poem:",
-        "model_name": "luodian/llama-13b-hf",
-    },
-    {
         "name": "wikipedia_llama_7b",
         "treshold_prob": 0.001,
         "prompt": "Here is a poem:",
         "model_name": "luodian/llama-7b-hf",
+    },
+    {
+        "name": "wikipedia_llama_13b",
+        "treshold_prob": 0.001,
+        "prompt": "Here is a poem:",
+        "model_name": "luodian/llama-13b-hf",
     },
 ]
 
@@ -72,7 +72,7 @@ if __name__ == "__main__":
         None,
     )
 
-    for test in tests1:
+    for test in tests3:
         test_name = test["name"]
         prompt = test["prompt"]
         # create directory
