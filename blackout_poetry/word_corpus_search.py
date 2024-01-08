@@ -1,10 +1,10 @@
 import torch
 from transformers import AutoTokenizer, LlamaForCausalLM
-from .corpus import BlackoutPoetryCorpus, BaseCorpus
+from .word_corpus import BlackoutPoetryWordCorpus, BaseCorpus
 from json import dump
 
 
-class CorpusSearch:
+class WordCorpusSearch:
     output_window: int = 1
     model_name: str = "luodian/llama-7b-hf"
     best_tokens_count: int = 32000

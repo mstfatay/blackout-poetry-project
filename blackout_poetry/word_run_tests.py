@@ -1,5 +1,5 @@
-from blackout_poetry.corpus import BlackoutPoetryCorpus
-from blackout_poetry.corpus_search import CorpusSearch
+from blackout_poetry.word_corpus import BlackoutPoetryWordCorpus
+from blackout_poetry.word_corpus_search import WordCorpusSearch
 from blackout_poetry.data import get_wikipedia_dataset
 from json import dump
 import os
@@ -46,12 +46,12 @@ tests2 = [
 ]
 
 tests3 = [
-    #{
+    # {
     #    "name": "wikipedia_llama_13b",
     #    "treshold_prob": 0.001,
     #    "prompt": "Here is a poem: \n\n",
     #    "model_name": "luodian/llama-13b-hf",
-    #},
+    # },
     {
         "name": "wikipedia_llama_7b",
         "treshold_prob": 0.001,
@@ -63,7 +63,7 @@ tests3 = [
 if __name__ == "__main__":
     dataset = get_wikipedia_dataset()
 
-    corpus_search = CorpusSearch(
+    corpus_search = WordCorpusSearch(
         None,
     )
 
@@ -81,7 +81,7 @@ if __name__ == "__main__":
             corpus_text = data_point["text"]
             title = data_point["title"]
 
-            corpus = BlackoutPoetryCorpus(corpus_text)
+            corpus = BlackoutPoetryWordCorpus(corpus_text)
             corpus_search.set_corpus(corpus)
             corpus_search.treshold_prob = test["treshold_prob"]
             result = corpus_search.corpus_search(
