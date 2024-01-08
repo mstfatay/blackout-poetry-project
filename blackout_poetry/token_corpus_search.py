@@ -62,6 +62,7 @@ class TokenCorpusSearch:
     ):
         stack = []
         texts_trace = []
+        number_of_words_trace = []
         self.terminated = False
         for i in range(max_iterations):
             stack = self._corpus_search_one_iteration(input_ids, stack)
@@ -71,18 +72,22 @@ class TokenCorpusSearch:
                 break
             stack_text = self.get_stack_text(stack)
             texts_trace.append(stack_text)
+            number_of_words_trace.append(len(stack))
 
             if verbose:
                 print(f"iteration {i}:")
                 print(stack_text)
 
         generations = []
-        for text in texts_trace:
-            for i in range(len(text) - 1, -1, -1):
-                if text[i] in [".", "?", "!"]:
-                    generation = text[: i + 1].strip()
-                    generations.append(generation)
-                    break
+        for i, text in enumerate(texts_trace):
+            if i < len(number_of_words_trace) - 1 and (
+                number_of_words_trace[i] == number_of_words_trace[i + 1] - 1
+            ):
+                for j in range(len(text) - 1, -1, -1):
+                    if text[j] in [".", "?", "!"]:
+                        generation = text[: j + 1].strip()
+                        generations.append(generation)
+                        break
 
         # remove duplicates
         generations = list(set(generations))
