@@ -7,3 +7,5 @@ torchaudio
 torchvision
 sentencepiece
 datasets
+langchain
+openai
