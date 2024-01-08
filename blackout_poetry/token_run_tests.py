@@ -72,7 +72,7 @@ if __name__ == "__main__":
         None,
     )
 
-    for test in tests3:
+    for test in [*tests1, *tests2, *tests3]:
         test_name = test["name"]
         prompt = test["prompt"]
         # create directory
