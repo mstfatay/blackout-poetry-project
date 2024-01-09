@@ -1,0 +1,26 @@
+[
+  {
+    "title": "Khorramshahr",
+    "generation": "Tip of The Cities.",
+    "reasoning": "The blackout poetry is a simple phrase that highlights the \"tip of the cities.\" It does not provide any specific information or context about Khorramshahr or Iran. It seems to be a creative interpretation rather than a factual representation.",
+    "answer": "human"
+  },
+  {
+    "title": "Robert Del Naja",
+    "generation": "This, that.",
+    "reasoning": "The blackout poetry seems to be a simple rearrangement of the original text, with some words omitted. It does not show any creative or interpretive elements.",
+    "answer": "machine"
+  },
+  {
+    "title": "Alys Williams",
+    "generation": "The United States, the world?",
+    "reasoning": "The blackout poetry seems to focus on the achievements and participation of Alys Williams in various water polo events. It mentions specific tournaments and championships she has been a part of. This requires knowledge of her career and accomplishments, which is more likely to be known by a human who has access to the information.",
+    "answer": "human"
+  },
+  {
+    "title": "Purna Swaraj",
+    "generation": "It is important, because, it was.",
+    "reasoning": "The blackout poetry seems to focus on the significance and importance of the Purna Swaraj document in relation to Indian independence. It highlights the phrase \"It is important, because, it was,\" which suggests a reflection on the historical significance of the document. This requires some understanding of the context and historical events.",
+    "answer": "human"
+  }
+]
