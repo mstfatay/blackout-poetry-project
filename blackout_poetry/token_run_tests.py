@@ -68,8 +68,8 @@ tests3 = [
 
 tests4 = [
     {
-        "name": "wikipedia_llama_13b_prompt2_treshold_003",
-        "treshold_prob": 0.003,
+        "name": "wikipedia_llama_13b_prompt2_treshold_0003",
+        "treshold_prob": 0.0003,
         "prompt": "Here is a random sentence:",
         "model_name": "luodian/llama-13b-hf",
     },
