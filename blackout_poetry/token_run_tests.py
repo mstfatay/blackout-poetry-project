@@ -65,6 +65,16 @@ tests3 = [
     },
 ]
 
+
+tests4 = [
+    {
+        "name": "wikipedia_llama_13b_prompt2_treshold_003",
+        "treshold_prob": 0.003,
+        "prompt": "Here is a random sentence:",
+        "model_name": "luodian/llama-13b-hf",
+    },
+]
+
 if __name__ == "__main__":
     dataset = get_wikipedia_dataset()
 
@@ -72,7 +82,7 @@ if __name__ == "__main__":
         None,
     )
 
-    for test in [*tests1, *tests2, *tests3]:
+    for test in tests4:
         test_name = test["name"]
         prompt = test["prompt"]
         # create directory

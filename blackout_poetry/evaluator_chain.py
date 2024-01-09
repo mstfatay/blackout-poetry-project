@@ -45,7 +45,9 @@ prompt = prompt_template.format(
     blackout_poetry="I am a human",
 )
 
-chat = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
+chat = ChatOpenAI(
+    model_name="gpt-3.5-turbo", temperature=0, max_retries=10, request_timeout=15.0
+)
 
 
 evaluator_chain = prompt_template | chat | EvaluatorOutputParser()
