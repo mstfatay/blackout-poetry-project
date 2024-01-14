@@ -1,9 +1,13 @@
-# Blackout Poetry Project for CMPE 586
+# Greedy Restricted Corpus Search
 
 ## Setup
 
 `pip install -r requirements.txt`
 
-## Run
+## Run Demo
 
-`python -m blackout_poetry.run_tests`
+`python -m blackout_poetry.demo`
+
+## Regenerate Tests
+
+`python -m blackout_poetry.token_run_tests`
